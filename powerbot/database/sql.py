@@ -26,15 +26,16 @@ create_messages = '''CREATE TABLE "messages" (
 create_tweets = '''CREATE TABLE "tweets" (
     "timestamp" INTEGER PRIMARY KEY NOT NULL,
     "message" TEXT NOT NULL,
-    "picture" TEXT NOT NULL,
+    "picture" TEXT,
     "expires" INTEGER
 );'''
 
 insert_state_change = 'INSERT INTO state_change values(?,?)'
 insert_report = 'INSERT INTO reports values(?,?,?)'
 insert_message = 'INSERT INTO messages values(?,?)'
-insert_tweet = 'INSERT INTO tweets values(?,?,?,?,?)'
+insert_tweet = 'INSERT INTO tweets values(?,?,?,?)'
 
+select_message = 'SELECT * FROM messages where new_state=? ORDER BY usage LIMIT 1'
 update_message_usage = 'UPDATE messages set usage = usage + 1 where id = ?'
 remove_message = 'DELETE FROM messages where id = ?'
 
