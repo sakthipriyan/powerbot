@@ -7,8 +7,9 @@ Created on 15-Dec-2012
 import sqlite3 as sqlite
 from powerbot.database.sql import database,create_state_change,create_reports,create_messages,create_tweets ,\
     insert_state_change, select_message, update_message_usage, insert_tweet,\
-    insert_message, insert_report
-from powerbot.database.models import Message
+    insert_message, insert_report, select_tweet, update_tweet_posted
+from powerbot.database.models import Message, Tweet
+import time
 
 def create_database():
     con = None
@@ -29,7 +30,18 @@ def create_database():
         if con:
             con.close()
 
-def insertStateChange(stateChange):    
+def init_database():
+    new_message(Message(0,0,'Power gone again!!',0))
+    new_message(Message(0,1,'And power came back again!!',0))
+    new_message(Message(0,0,'No one knows when electricity will go!! It has gone now :(',0))
+    new_message(Message(0,1,'Ha ha it came back! As always electricity shows up some time here',0))
+    new_message(Message(0,0,'Now we are back to stone age!!',0))
+    new_message(Message(0,1,'Back from past! Fans are running now, really!',0))
+    new_message(Message(0,0,'When you desperately need electricity, you cannot find it!!',0))
+    new_message(Message(0,1,'So, one more time it came back!!',0))
+
+
+def new_state_change(stateChange):    
     connection = None
     try:
         connection = sqlite.connect(database)
@@ -43,7 +55,7 @@ def insertStateChange(stateChange):
         if connection:
             connection.close()
 
-def insertReport(report):
+def new_report(report):
     connection = None
     try:
         connection = sqlite.connect(database)
@@ -56,7 +68,7 @@ def insertReport(report):
         if connection:
             connection.close()
 
-def insertMessage(message):
+def new_message(message):
     connection = None
     try:
         connection = sqlite.connect(database)
@@ -69,7 +81,7 @@ def insertMessage(message):
         if connection:
             connection.close()
 
-def selectMessage(stateChange):
+def get_message(stateChange):
     connection = None
     message = None
     try:
@@ -77,9 +89,10 @@ def selectMessage(stateChange):
         cursor = connection.cursor()
         cursor.execute(select_message,(stateChange.new_state,))
         data = cursor.fetchone()
-        message = Message(data[0], data[1], data[2], data[3])
-        cursor.execute(update_message_usage,(message.id,))
-        connection.commit()
+        if(data):
+            message = Message(data[0], data[1], data[2], data[3])
+            cursor.execute(update_message_usage,(message.id,))
+            connection.commit()
     except sqlite.Error, e:
         print "Error %s:" % e.args[0]
     finally:
@@ -87,12 +100,41 @@ def selectMessage(stateChange):
             connection.close()
     return message
 
-def insertTweet(tweet):
+def new_tweet(tweet):
     connection = None
     try:
         connection = sqlite.connect(database)
         cursor = connection.cursor()
         cursor.execute(insert_tweet,(tweet.timestamp,tweet.message,tweet.picture,tweet.expires))
+        connection.commit()
+    except sqlite.Error, e:
+        print "Error %s:" % e.args[0]
+    finally:
+        if connection:
+            connection.close()
+
+def next_tweet():
+    connection = None
+    tweet = None
+    try:
+        connection = sqlite.connect(database)
+        cursor = connection.cursor()
+        cursor.execute(select_tweet,(int(time.time()),))
+        data = cursor.fetchone()
+        tweet = Tweet(data[0], data[1], data[2], data[3])
+    except sqlite.Error, e:
+        print "Error %s:" % e.args[0]
+    finally:
+        if connection:
+            connection.close()
+    return tweet
+
+def set_tweet_posted(tweet):
+    connection = None
+    try:
+        connection = sqlite.connect(database)
+        cursor = connection.cursor()
+        cursor.execute(update_tweet_posted,(tweet.timestamp,))
         connection.commit()
     except sqlite.Error, e:
         print "Error %s:" % e.args[0]

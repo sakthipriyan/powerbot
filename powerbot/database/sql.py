@@ -27,15 +27,17 @@ create_tweets = '''CREATE TABLE "tweets" (
     "timestamp" INTEGER PRIMARY KEY NOT NULL,
     "message" TEXT NOT NULL,
     "picture" TEXT,
-    "expires" INTEGER
+    "expires" INTEGER NOT NULL
 );'''
 
 insert_state_change = 'INSERT INTO state_change values(?,?)'
 insert_report = 'INSERT INTO reports values(?,?,?)'
-insert_message = 'INSERT INTO messages values(?,?)'
-insert_tweet = 'INSERT INTO tweets values(?,?,?,?)'
 
+insert_tweet = 'INSERT INTO tweets values(?,?,?,?)'
+select_tweet = 'SELECT * FROM tweets where expires > ? ORDER BY timestamp LIMIT 1'
+update_tweet_posted = 'UPDATE tweets set expires = null where timestamp = ?'
+
+insert_message = 'INSERT INTO messages("new_state","message") values (?,?)'
 select_message = 'SELECT * FROM messages where new_state=? ORDER BY usage LIMIT 1'
 update_message_usage = 'UPDATE messages set usage = usage + 1 where id = ?'
 remove_message = 'DELETE FROM messages where id = ?'
-
