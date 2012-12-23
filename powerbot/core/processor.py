@@ -11,6 +11,8 @@ from powerbot.database.models import StateChange, Tweet
 from powerbot.database import access
 import datetime
 from Queue import Queue
+from powerbot.core.tweet import send_tweet
+import logging
 
 old_status = True
 state_change_queue = Queue()
@@ -39,9 +41,11 @@ def process_change():
         stateChange = state_change_queue.get()
         access.new_state_change(stateChange)
         tweet = Tweet(stateChange.timestamp, get_message_with_ts(stateChange) , None, stateChange.timestamp + 600)
-        access.new_tweet(tweet)
+        if not send_tweet(tweet):
+            access.new_tweet(tweet)
 
-def process_tweets():
+
+def process_tweets(event):
     while True:
         print 'Trying to send tweet'
         time.sleep(2)
@@ -52,11 +56,22 @@ def process_reports():
         time.sleep(5)
 
 def main():    
-    print 'Starting POWER BOT service'
+    logging.basicConfig(filename='powerbot.log', format='%(asctime)s %(threadName)-10s %(message)s', level=logging.DEBUG)
+    logging.info('Running POWER BOT service')
+    
+    event = threading.Event()
+    
     senseThread = threading.Thread(target = do_sensing)    
-    processThread = threading.Thread(target = process_change)
-    tweetThread = threading.Thread(target = process_tweets)
-    reportThread = threading.Thread(target = process_reports)
+    senseThread.setName('sense_thread')
+    
+    processThread = threading.Thread(target = process_change, args=(event,))
+    processThread.setName('process_thread')
+    
+    tweetThread = threading.Thread(target = process_tweets, args=(event,))
+    tweetThread.setName('tweet_thread')
+    
+    reportThread = threading.Thread(target = process_reports, args=(event,))
+    reportThread.setName('report_thread')
     
     senseThread.start()
     processThread.start()

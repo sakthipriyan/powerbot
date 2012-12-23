@@ -35,7 +35,8 @@ insert_report = 'INSERT INTO reports values(?,?,?)'
 
 insert_tweet = 'INSERT INTO tweets values(?,?,?,?)'
 select_tweet = 'SELECT * FROM tweets where expires > ? ORDER BY timestamp LIMIT 1'
-update_tweet_posted = 'UPDATE tweets set expires = null where timestamp = ?'
+#update_tweet_posted = 'UPDATE tweets set expires = null where timestamp = ?'
+delete_tweets = 'DELETE FROM tweets where timestamp < ?'
 
 insert_message = 'INSERT INTO messages("new_state","message") values (?,?)'
 select_message = 'SELECT * FROM messages where new_state=? ORDER BY usage LIMIT 1'

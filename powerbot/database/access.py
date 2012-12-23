@@ -7,7 +7,7 @@ Created on 15-Dec-2012
 import sqlite3 as sqlite
 from powerbot.database.sql import database,create_state_change,create_reports,create_messages,create_tweets ,\
     insert_state_change, select_message, update_message_usage, insert_tweet,\
-    insert_message, insert_report, select_tweet, update_tweet_posted
+    insert_message, insert_report, select_tweet, delete_tweets
 from powerbot.database.models import Message, Tweet
 import time
 
@@ -129,12 +129,12 @@ def next_tweet():
             connection.close()
     return tweet
 
-def set_tweet_posted(tweet):
+def remove_tweets(tweet):
     connection = None
     try:
         connection = sqlite.connect(database)
         cursor = connection.cursor()
-        cursor.execute(update_tweet_posted,(tweet.timestamp,))
+        cursor.execute(delete_tweets,(tweet.timestamp,))
         connection.commit()
     except sqlite.Error, e:
         print "Error %s:" % e.args[0]

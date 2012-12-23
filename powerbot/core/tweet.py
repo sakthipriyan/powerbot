@@ -5,6 +5,7 @@ Created on 15-Dec-2012
 '''
 import config
 from twython import Twython
+import time
 
 twitter = Twython(
     twitter_token = config.twitter_token,
@@ -20,6 +21,16 @@ def post_tweet(text):
 def post_tweet_with_image(text, image):
     global twitter
     twitter.updateStatusWithMedia(image, status=text)
-    
-#tweet(auth, 'hello from eclipse')
+
+def send_tweet(tweet):
+    if(tweet.expires < int(time.time())):
+        return
+    try:
+        if(tweet.picture):
+            post_tweet_with_image(tweet.message, tweet.picture)
+        else:
+            post_tweet(tweet.message)
+        return True
+    except Exception:
+        return False
 #tweet_with_image(auth, 'Testing image attachment now', '/home/sakthipriyan/Desktop/index.jpeg')
