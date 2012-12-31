@@ -13,26 +13,30 @@ import datetime
 from Queue import Queue
 from powerbot.core.tweet import send_tweet
 import logging
+from threading import Lock
 
 old_status = True
 state_change_queue = Queue()
+tweet_ready_lock = Lock()
 
 def get_message_with_ts(stateChange):
     message = access.get_message(stateChange)
-    flag =  'ON' if stateChange.new_state else 'OFF'
+    flag =  getStatusName(stateChange.new_state)
     sign =  datetime.datetime.fromtimestamp(stateChange.timestamp).strftime("  ~ %H:%M "+flag)
     return message.message + sign
+
+def getStatusName(state):
+    return 'ON' if state else 'OFF'
 
 def do_sensing():
     while True:
         new_status = get_status()
         global old_status, state_change_queue
         if(new_status != old_status):
-            print str(time.asctime()) + ' Status changed from ' + str(old_status) + ' to '  + str(new_status)
+            logging.info('Status changed from ' + getStatusName(old_status) + ' to '  + getStatusName(new_status))
             old_status = new_status
             state_change = StateChange(1 if new_status else 0, int(time.time()))
             state_change_queue.put(state_change)
-            print 'Change put into queue ' + str(state_change_queue.qsize())        
         time.sleep(1)
 
 def process_change():
@@ -44,34 +48,35 @@ def process_change():
         if not send_tweet(tweet):
             access.new_tweet(tweet)
 
-
-def process_tweets(event):
+def process_tweets():
+    global tweet_ready_lock
     while True:
-        print 'Trying to send tweet'
+        logging.info('Supposed to send tweets')
         time.sleep(2)
 
 def process_reports():
     while True:
-        print "Generates reports"
-        time.sleep(5)
+        logging.info('Supposed to generate reports')
+        time.sleep(500)
 
 def main():    
-    logging.basicConfig(filename='powerbot.log', format='%(asctime)s %(threadName)-10s %(message)s', level=logging.DEBUG)
-    logging.info('Running POWER BOT service')
+    logging.basicConfig(#filename='powerbot.log', 
+                        format='%(asctime)19s %(threadName)s %(message)s', level=logging.INFO)
+    logging.info('### Running POWER BOT service ###')
     
-    event = threading.Event()
+    #event = threading.Event()
     
     senseThread = threading.Thread(target = do_sensing)    
-    senseThread.setName('sense_thread')
+    senseThread.setName('SenseThread')
     
-    processThread = threading.Thread(target = process_change, args=(event,))
-    processThread.setName('process_thread')
+    processThread = threading.Thread(target = process_change)
+    processThread.setName('ProcessThread')
     
-    tweetThread = threading.Thread(target = process_tweets, args=(event,))
-    tweetThread.setName('tweet_thread')
+    tweetThread = threading.Thread(target = process_tweets)
+    tweetThread.setName('TweetThread')
     
-    reportThread = threading.Thread(target = process_reports, args=(event,))
-    reportThread.setName('report_thread')
+    reportThread = threading.Thread(target = process_reports)
+    reportThread.setName('ReportThread')
     
     senseThread.start()
     processThread.start()
