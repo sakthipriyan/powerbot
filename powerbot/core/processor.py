@@ -67,7 +67,7 @@ def process_reports():
         time.sleep(500)
 
 def init_logging():
-    logging.basicConfig(#filename='powerbot.log', 
+    logging.basicConfig(filename='powerbot.log', 
                         format='%(asctime)s [%(threadName)s] %(message)s', datefmt="%Y-%m-%d %H:%M:%S",
                          level=logging.INFO)
     logging.info('### Running POWER BOT service ###')
