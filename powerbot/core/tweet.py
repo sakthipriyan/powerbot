@@ -34,7 +34,7 @@ def send_tweet(tweet):
         logging.info('Sending ' + str(tweet))
         return True
     except Exception, e:
-        logging.error('Failed to send ' + str(tweet) + e)
+        logging.error('Failed to send ' + str(tweet) + str(e))
         return False
     
 def get_wait_time():
