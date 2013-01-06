@@ -1,5 +1,5 @@
-#!/bin/sh
-# /etc/init.d/power-bot
+#!/usr/bin/python
+# /etc/init.d/powerbot
 
 case "$1" in
 start)
@@ -13,7 +13,7 @@ killall run.py
 ;;
 
 *)
-echo "Usage: /etc/init.d/power-bot (start|stop)"
+echo "Usage: /etc/init.d/powerbot (start|stop)"
 exit 1
 ;;
 

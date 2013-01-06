@@ -21,8 +21,8 @@ tweet_ready_lock = Lock()
 
 def get_message_with_ts(stateChange):
     message = access.get_message(stateChange)
-    flag =  getStatusName(stateChange.new_state)
-    sign =  datetime.datetime.fromtimestamp(stateChange.timestamp).strftime("  ~ %H:%M "+flag)
+    flag = getStatusName(stateChange.new_state)
+    sign = datetime.datetime.fromtimestamp(stateChange.timestamp).strftime("  ~ %H:%M " + flag)
     return message.message + sign
 
 def getStatusName(state):
@@ -33,7 +33,7 @@ def do_sensing():
         new_status = get_status()
         global old_status, state_change_queue
         if(new_status != old_status):
-            logging.info('Status changed from ' + getStatusName(old_status) + ' to '  + getStatusName(new_status))
+            logging.info('Status changed from ' + getStatusName(old_status) + ' to ' + getStatusName(new_status))
             old_status = new_status
             state_change = StateChange(1 if new_status else 0, int(time.time()))
             state_change_queue.put(state_change)
@@ -58,24 +58,27 @@ def process_reports():
         logging.info('Supposed to generate reports')
         time.sleep(500)
 
-def main():    
-    logging.basicConfig(#filename='powerbot.log', 
-                        format='%(asctime)s [%(threadName)s] %(message)s', datefmt= "%Y-%m-%d %H:%M:%S",
+def init_logging():
+    logging.basicConfig(filename='powerbot.log', format='%(asctime)s [%(threadName)s] %(message)s', datefmt="%Y-%m-%d %H:%M:%S",
                          level=logging.INFO)
     logging.info('### Running POWER BOT service ###')
+
+def main():    
+    
+    init_logging()
     init_database()
     init_sensor()
     
-    senseThread = threading.Thread(target = do_sensing)    
+    senseThread = threading.Thread(target=do_sensing)    
     senseThread.setName('SenseThread')
     
-    processThread = threading.Thread(target = process_change)
+    processThread = threading.Thread(target=process_change)
     processThread.setName('ProcessThread')
     
-    tweetThread = threading.Thread(target = process_tweets)
+    tweetThread = threading.Thread(target=process_tweets)
     tweetThread.setName('TweetThread')
     
-    reportThread = threading.Thread(target = process_reports)
+    reportThread = threading.Thread(target=process_reports)
     reportThread.setName('ReportThread')
     
     senseThread.start()
