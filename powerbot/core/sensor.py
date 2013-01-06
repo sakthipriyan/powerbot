@@ -4,20 +4,22 @@ Created on 15-Dec-2012
 @author: sakthipriyan
 '''
 
-'''
+
 import RPi.GPIO as GPIO
 
 
 def get_status():
     return not GPIO.input(4)
-'''
+
 import logging
 
-def init_sensor():    
-    #GPIO.setmode(GPIO.BCM)
-    #GPIO.setup(4, GPIO.IN)
-    logging.info('Setting up sensor')
+def init_sensor():
+    logging.info('Setting up sensor')    
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(4, GPIO.IN)
     
+
+'''    
 import time, random
 status = True
 next_change = 0
@@ -39,4 +41,5 @@ def change_input():
         next_change = current_time + random_time
         return True
     else:
-        return False    
+        return False
+'''    
