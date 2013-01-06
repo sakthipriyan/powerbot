@@ -1,0 +1,22 @@
+#!/bin/sh
+#/etc/init.d/power-bot
+
+case "$1" in
+start)
+echo "Starting powerbot..."
+python /root/power/monitor.py &
+;;
+
+stop)
+echo "Stopping powerbot..."
+killall monitor.py
+;;
+
+*)
+echo "Usage: /etc/init.d/power-bot (start|stop)"
+exit 1
+;;
+
+esac
+
+exit 0
