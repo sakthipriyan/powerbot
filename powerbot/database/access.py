@@ -6,8 +6,9 @@ Created on 15-Dec-2012
 import sqlite3 as sqlite
 from powerbot.database.sql import database,create_state_change,create_reports,create_messages,create_tweets ,\
     insert_state_change, select_message, update_message_usage, insert_tweet,\
-    insert_message, insert_report, select_tweet, delete_tweets
-from powerbot.database.models import Message, Tweet
+    insert_message, insert_report, select_tweet, delete_tweets,\
+    select_last_state_change, update_tweet_posted
+from powerbot.database.models import Message, Tweet, StateChange
 import time
 import os
 import logging
@@ -47,6 +48,9 @@ def insert_messages():
     new_message(Message(0,1,'So, one more time it came back!!',0))
     new_message(Message(0,0,'With high economic growth and inefficient government, we have no other option',0))
     new_message(Message(0,1,'Some times, government do remind us that we have working power plants by providing electricity',0))
+    new_message(Message(0,0,'No one is sure here, when electricity shortage of supply will be fulfilled',0))
+    new_message(Message(0,1,'AFAIK, since 2007 we were hearing that electricity shortage will be resolved in few months.',0))
+    
 
 def new_state_change(stateChange):    
     connection = None
@@ -62,6 +66,24 @@ def new_state_change(stateChange):
         if connection:
             connection.close()
 
+def get_last_state_change():
+    connection = None
+    stateChange = None
+    try:
+        connection = sqlite.connect(database)
+        cursor = connection.cursor()
+        cursor.execute(select_last_state_change)
+        data = cursor.fetchone()
+        if data:
+            stateChange = StateChange(data[1], data[0])
+    except sqlite.Error, e:
+        logging.error("Error %s:" % e.args[0])
+    finally:
+        if connection:
+            connection.close()
+    return stateChange
+    
+    
 def new_report(report):
     connection = None
     try:
@@ -98,7 +120,7 @@ def get_message(stateChange):
         cursor = connection.cursor()
         cursor.execute(select_message,(stateChange.new_state,))
         data = cursor.fetchone()
-        if(data):
+        if data:
             message = Message(data[0], data[1], data[2], data[3])
             cursor.execute(update_message_usage,(message.id,))
             connection.commit()
@@ -131,13 +153,27 @@ def next_tweet():
         cursor = connection.cursor()
         cursor.execute(select_tweet,(int(time.time()),))
         data = cursor.fetchone()
-        tweet = Tweet(data[0], data[1], data[2], data[3])
+        if data:
+            tweet = Tweet(data[0], data[1], data[2], data[3])
     except sqlite.Error, e:
         logging.error("Error %s:" % e.args[0])
     finally:
         if connection:
             connection.close()
     return tweet
+
+def update_posted_tweet(tweet):
+    connection = None
+    try:
+        connection = sqlite.connect(database)
+        cursor = connection.cursor()
+        cursor.execute(update_tweet_posted,(tweet.timestamp,tweet.timestamp))
+        connection.commit()
+    except sqlite.Error, e:
+        logging.error("Error %s:" % e.args[0])
+    finally:
+        if connection:
+            connection.close()
 
 def remove_tweets(tweet):
     connection = None
