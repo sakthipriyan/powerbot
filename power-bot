@@ -4,7 +4,7 @@
 case "$1" in
 start)
 echo "Starting powerbot..."
-python /opt/powerbot/run.py &
+/opt/powerbot/run.py &
 ;;
 
 stop)
