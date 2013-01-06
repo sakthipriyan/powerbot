@@ -7,18 +7,17 @@ Created on 15-Dec-2012
 @author: sakthipriyan
 '''
 
-import sys
+#import sys
 from powerbot.core import processor
-from powerbot.core.daemon import Daemon
+#from powerbot.core.daemon import Daemon
 
 if __name__ == '__main__':
     processor.main()
     
+''' 
 class MyDaemon(Daemon):
     def run(self):
-        processor.main()    
-'''
- 
+        processor.main() 
 if __name__ == "__main__":
     daemon = MyDaemon('/tmp/powerbot.pid')
     if len(sys.argv) == 2:
