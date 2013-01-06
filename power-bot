@@ -1,5 +1,5 @@
-#!/usr/bin/python
-# /etc/init.d/powerbot
+#!/bin/sh
+#/etc/init.d/powerbot
 
 case "$1" in
 start)
