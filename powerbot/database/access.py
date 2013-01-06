@@ -1,6 +1,5 @@
 '''
 Created on 15-Dec-2012
-
 @author: sakthipriyan
 '''
 
@@ -10,27 +9,34 @@ from powerbot.database.sql import database,create_state_change,create_reports,cr
     insert_message, insert_report, select_tweet, delete_tweets
 from powerbot.database.models import Message, Tweet
 import time
+import os
+import logging
+
+def init_database():
+    dbPath = os.getcwd() +'/' +database
+    if(not os.path.exists(dbPath)):
+        logging.info('Creating database: ' + database) 
+        create_database()
+        logging.info('Inserting status change messages')
+        insert_messages()
 
 def create_database():
     con = None
     try:
         con = sqlite.connect(database)
         cur = con.cursor()
-        cur.execute('SELECT SQLITE_VERSION()')
-        data = cur.fetchone()
-        print "SQLite version: %s" % data
         cur.execute(create_state_change)
         cur.execute(create_reports)
         cur.execute(create_messages) 
         cur.execute(create_tweets)
-        print 'Tables created successfully'
+        logging.info('Tables created successfully')
     except sqlite.Error, e:
-        print "Error %s:" % e.args[0]
+        logging.error("Error %s:" % e.args[0])
     finally:
         if con:
             con.close()
 
-def init_database():
+def insert_messages():
     new_message(Message(0,0,'Power gone again!!',0))
     new_message(Message(0,1,'And power came back again!!',0))
     new_message(Message(0,0,'No one knows when electricity will go!! It has gone now :(',0))
@@ -39,7 +45,8 @@ def init_database():
     new_message(Message(0,1,'Back from past! Fans are running now, really!',0))
     new_message(Message(0,0,'When you desperately need electricity, you cannot find it!!',0))
     new_message(Message(0,1,'So, one more time it came back!!',0))
-
+    new_message(Message(0,0,'With high economic growth and inefficient government, we have no other option',0))
+    new_message(Message(0,1,'Some times, government do remind us that we have working power plants by providing electricity',0))
 
 def new_state_change(stateChange):    
     connection = None
@@ -47,10 +54,10 @@ def new_state_change(stateChange):
         connection = sqlite.connect(database)
         cursor = connection.cursor()
         cursor.execute(insert_state_change, (stateChange.timestamp, stateChange.new_state))
-        print 'Inserted state change record ' + str(stateChange)
         connection.commit()
+        logging.info('Inserted record ' + str(stateChange))
     except sqlite.Error, e:
-        print "Error %s:" % e.args[0]
+        logging.error("Error %s:" % e.args[0])
     finally:
         if connection:
             connection.close()
@@ -62,8 +69,9 @@ def new_report(report):
         cursor = connection.cursor()
         cursor.execute(insert_report,(report.date, report.report_type, report.on_time))
         connection.commit()
+        logging.info('Inserted record ' + str(report))
     except sqlite.Error, e:
-        print "Error %s:" % e.args[0]
+        logging.error("Error %s:" % e.args[0])
     finally:
         if connection:
             connection.close()
@@ -75,8 +83,9 @@ def new_message(message):
         cursor = connection.cursor()
         cursor.execute(insert_message,(message.new_state,message.message))
         connection.commit()
+        logging.info('Inserted record ' + str(message))
     except sqlite.Error, e:
-        print "Error %s:" % e.args[0]
+        logging.error("Error %s:" % e.args[0])
     finally:
         if connection:
             connection.close()
@@ -94,7 +103,7 @@ def get_message(stateChange):
             cursor.execute(update_message_usage,(message.id,))
             connection.commit()
     except sqlite.Error, e:
-        print "Error %s:" % e.args[0]
+        logging.error("Error %s:" % e.args[0])
     finally:
         if connection:
             connection.close()
@@ -107,8 +116,9 @@ def new_tweet(tweet):
         cursor = connection.cursor()
         cursor.execute(insert_tweet,(tweet.timestamp,tweet.message,tweet.picture,tweet.expires))
         connection.commit()
+        logging.info('Inserted record ' + str(tweet))
     except sqlite.Error, e:
-        print "Error %s:" % e.args[0]
+        logging.error("Error %s:" % e.args[0])
     finally:
         if connection:
             connection.close()
@@ -123,7 +133,7 @@ def next_tweet():
         data = cursor.fetchone()
         tweet = Tweet(data[0], data[1], data[2], data[3])
     except sqlite.Error, e:
-        print "Error %s:" % e.args[0]
+        logging.error("Error %s:" % e.args[0])
     finally:
         if connection:
             connection.close()
@@ -137,7 +147,7 @@ def remove_tweets(tweet):
         cursor.execute(delete_tweets,(tweet.timestamp,))
         connection.commit()
     except sqlite.Error, e:
-        print "Error %s:" % e.args[0]
+        logging.error("Error %s:" % e.args[0])
     finally:
         if connection:
             connection.close()

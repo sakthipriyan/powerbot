@@ -4,16 +4,16 @@ Created on 15-Dec-2012
 @author: sakthipriyan
 '''
 
-from powerbot.core.sensor import get_status
+from powerbot.core.sensor import get_status, init_sensor
 import time
 import threading
 from powerbot.database.models import StateChange, Tweet
 from powerbot.database import access
 import datetime
 from Queue import Queue
-from powerbot.core.tweet import send_tweet
 import logging
 from threading import Lock
+from powerbot.database.access import init_database
 
 old_status = True
 state_change_queue = Queue()
@@ -45,14 +45,13 @@ def process_change():
         stateChange = state_change_queue.get()
         access.new_state_change(stateChange)
         tweet = Tweet(stateChange.timestamp, get_message_with_ts(stateChange) , None, stateChange.timestamp + 600)
-        if not send_tweet(tweet):
-            access.new_tweet(tweet)
+        access.new_tweet(tweet)
 
 def process_tweets():
     global tweet_ready_lock
     while True:
         logging.info('Supposed to send tweets')
-        time.sleep(2)
+        time.sleep(200)
 
 def process_reports():
     while True:
@@ -61,10 +60,11 @@ def process_reports():
 
 def main():    
     logging.basicConfig(#filename='powerbot.log', 
-                        format='%(asctime)19s %(threadName)s %(message)s', level=logging.INFO)
+                        format='%(asctime)s [%(threadName)s] %(message)s', datefmt= "%Y-%m-%d %H:%M:%S",
+                         level=logging.INFO)
     logging.info('### Running POWER BOT service ###')
-    
-    #event = threading.Event()
+    init_database()
+    init_sensor()
     
     senseThread = threading.Thread(target = do_sensing)    
     senseThread.setName('SenseThread')
@@ -85,4 +85,3 @@ def main():
     
 if __name__ == "__main__":
     main()
-
