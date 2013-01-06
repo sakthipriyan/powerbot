@@ -5,8 +5,7 @@ import logging
 def get_next_schedule_time():
     today = datetime.date.today()
     tomorrow = today + datetime.timedelta(days=1)
-    delay = int(time.mktime(tomorrow.timetuple())) - int(time.time())
-    return delay
+    return int(time.mktime(tomorrow.timetuple())) - int(time.time())
      
 def daily_processing():
     logging.info('TODO - Processing daily records')
