@@ -32,8 +32,10 @@ create_tweets = '''CREATE TABLE "tweets" (
 
 insert_state_change = 'INSERT INTO state_change values(?,?)'
 select_last_state_change = 'SELECT * FROM state_change ORDER BY timestamp DESC LIMIT 1'
-select_state_change_btw = 'select * from state_change where timestamp between ? and ?;'
+select_state_change_btw = 'SELECT * FROM state_change WHERE timestamp BETWEEN ? AND ? ORDER BY timestamp'
+
 insert_report = 'INSERT INTO reports values(?,?,?)'
+select_report = 'SELECT * FROM reports WHERE date = ? AND report_type = ?'
 
 insert_tweet = 'INSERT INTO tweets values(?,?,?,?)'
 select_tweet = 'SELECT * FROM tweets where expires > ? ORDER BY timestamp LIMIT 1'
