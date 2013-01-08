@@ -9,10 +9,13 @@ from powerbot.database.models import StateChange, Tweet
 from powerbot.database import access 
 from Queue import Queue
 from powerbot.core.tweet import get_wait_time, send_tweet, internet_on
+from powerbot.core.report import sleep_till_midnight, generate_reports
+from powerbot.database.access import init_database
 
 old_status = True
 state_change_queue = Queue()
-tweet_ready_queue = Queue()
+tweet_ready = threading.Event()
+tweet_ready.set()
 
 def get_message_with_ts(stateChange):
     message = access.get_message(stateChange)
@@ -35,39 +38,39 @@ def do_sensing():
         time.sleep(1)
 
 def process_change():
-    global state_change_queue
+    global state_change_queue, tweet_ready
     while True:
         stateChange = state_change_queue.get()
         access.new_state_change(stateChange)
         tweet = Tweet(stateChange.timestamp, get_message_with_ts(stateChange) , None, stateChange.timestamp + 600)
         access.new_tweet(tweet)
-        tweet_ready_queue.put(True)
+        tweet_ready.set()
 
 def process_tweets():
-    global tweet_ready_queue
-    while tweet_ready_queue.get():
+    global tweet_ready
+    while tweet_ready.wait():
         if internet_on():
             while True:
                 tweet = access.next_tweet()
                 if tweet is None:
-                    tweet_ready_queue.queue.clear()
                     break
-                else:
-                    send_tweet(tweet)
+                elif send_tweet(tweet):
                     access.update_posted_tweet(tweet)
         else:
             sleep_time = get_wait_time()
-            logging.info('Apparently Internet connection is down now. Sleep time : ' + str(sleep_time))
-            tweet_ready_queue.put(True)
+            logging.info('Apparently Internet connection is down now. Sleeping time : ' + str(sleep_time))
             time.sleep(sleep_time)
+            tweet_ready.set()
 
 def process_reports():
+    global tweet_ready
     while True:
-        logging.info('Supposed to generate reports')
-        time.sleep(500)
+        sleep_till_midnight()
+        generate_reports()
+        tweet_ready.set()
 
 def init_logging():
-    logging.basicConfig(filename='powerbot.log', 
+    logging.basicConfig(#filename='powerbot.log', 
                         format='%(asctime)s [%(threadName)s] %(message)s', datefmt="%Y-%m-%d %H:%M:%S",
                          level=logging.INFO)
     logging.info('### Running POWER BOT service ###')
@@ -75,7 +78,7 @@ def init_logging():
 def main():    
     
     init_logging()
-    access.init_database()
+    init_database()
     init_sensor()
     
     global old_status 
@@ -86,7 +89,7 @@ def main():
     
     senseThread = threading.Thread(target=do_sensing)    
     senseThread.setName('SenseThread')
-    
+
     processThread = threading.Thread(target=process_change)
     processThread.setName('ProcessThread')
     
