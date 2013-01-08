@@ -7,7 +7,7 @@ import sqlite3 as sqlite
 from powerbot.database.sql import database,create_state_change,create_reports,create_messages,create_tweets ,\
     insert_state_change, select_message, update_message_usage, insert_tweet,\
     insert_message, insert_report, select_tweet, delete_tweets,\
-    select_last_state_change, update_tweet_posted
+    select_last_state_change, update_tweet_posted, select_state_change_btw
 from powerbot.database.models import Message, Tweet, StateChange
 import time
 import os
@@ -59,7 +59,7 @@ def new_state_change(stateChange):
         cursor = connection.cursor()
         cursor.execute(insert_state_change, (stateChange.timestamp, stateChange.new_state))
         connection.commit()
-        logging.info('Inserted record ' + str(stateChange))
+        logging.info('Inserted ' + str(stateChange))
     except sqlite.Error, e:
         logging.error("Error %s:" % e.args[0])
     finally:
@@ -83,7 +83,21 @@ def get_last_state_change():
             connection.close()
     return stateChange
     
-    
+def get_state_change_btw(start, end):
+    connection = None
+    statechange = []
+    try:
+        connection = sqlite.connect(database)
+        cursor = connection.cursor()
+        for data in cursor.execute(select_state_change_btw,(start,end)):
+            statechange.append(StateChange(data[1], data[0]))
+    except sqlite.Error, e:
+        logging.error("Error %s:" % e.args[0])
+    finally:
+        if connection:
+            connection.close()
+    return statechange
+
 def new_report(report):
     connection = None
     try:
@@ -91,7 +105,7 @@ def new_report(report):
         cursor = connection.cursor()
         cursor.execute(insert_report,(report.date, report.report_type, report.on_time))
         connection.commit()
-        logging.info('Inserted record ' + str(report))
+        logging.info('Inserted ' + str(report))
     except sqlite.Error, e:
         logging.error("Error %s:" % e.args[0])
     finally:
@@ -105,7 +119,7 @@ def new_message(message):
         cursor = connection.cursor()
         cursor.execute(insert_message,(message.new_state,message.message))
         connection.commit()
-        logging.info('Inserted record ' + str(message))
+        logging.info('Inserted ' + str(message))
     except sqlite.Error, e:
         logging.error("Error %s:" % e.args[0])
     finally:
@@ -138,7 +152,7 @@ def new_tweet(tweet):
         cursor = connection.cursor()
         cursor.execute(insert_tweet,(tweet.timestamp,tweet.message,tweet.picture,tweet.expires))
         connection.commit()
-        logging.info('Inserted record ' + str(tweet))
+        logging.info('Inserted ' + str(tweet))
     except sqlite.Error, e:
         logging.error("Error %s:" % e.args[0])
     finally:
