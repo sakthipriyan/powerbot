@@ -36,6 +36,7 @@ select_state_change_btw = 'SELECT * FROM state_change WHERE timestamp BETWEEN ? 
 
 insert_report = 'INSERT INTO reports values(?,?,?)'
 select_report = 'SELECT * FROM reports WHERE date = ? AND report_type = ?'
+select_reports_btw = 'SELECT * FROM reports WHERE report_type = ? AND date BETWEEN ? AND ? ORDER BY date'
 
 insert_tweet = 'INSERT INTO tweets values(?,?,?,?)'
 select_tweet = 'SELECT * FROM tweets where expires > ? ORDER BY timestamp LIMIT 1'

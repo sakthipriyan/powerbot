@@ -8,7 +8,7 @@ from powerbot.database.sql import database,create_state_change,create_reports,cr
     insert_state_change, select_message, update_message_usage, insert_tweet,\
     insert_message, insert_report, select_tweet, delete_tweets,\
     select_last_state_change, update_tweet_posted, select_state_change_btw,\
-    select_report
+    select_report, select_reports_btw
 from powerbot.database.models import Message, Tweet, StateChange, Report
 import time
 import os
@@ -121,14 +121,31 @@ def get_report(date,report_type):
         cursor = connection.cursor()
         cursor.execute(select_report,(date,report_type))
         data = cursor.fetchone()
-        report = Report(data[0], data[2], data[1])
+        if data:
+            report = Report(data[0], data[2], data[1])
     except sqlite.Error, e:
         logging.error("Error %s:" % e.args[0])
     finally:
         if connection:
             connection.close()
     return report
-    
+
+def get_reports(report_type,from_date,to_date):
+    connection = None
+    reports = []
+    try:
+        connection = sqlite.connect(database)
+        cursor = connection.cursor()
+        for data in cursor.execute(select_reports_btw,(report_type,from_date,to_date)):
+            reports.append(Report(data[0], data[2], data[1]))
+    except sqlite.Error, e:
+        logging.error("Error %s:" % e.args[0])
+    finally:
+        if connection:
+            connection.close()
+    return reports
+
+
 
 def new_message(message):
     connection = None
