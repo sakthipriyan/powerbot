@@ -42,7 +42,7 @@ def process_change():
     while True:
         stateChange = state_change_queue.get()
         access.new_state_change(stateChange)
-        tweet = Tweet(stateChange.timestamp, get_message_with_ts(stateChange) , None, stateChange.timestamp + 600)
+        tweet = Tweet(stateChange.timestamp, get_message_with_ts(stateChange) , None, stateChange.timestamp + 14400)
         access.new_tweet(tweet)
         tweet_ready.set()
 
