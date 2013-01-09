@@ -5,6 +5,7 @@ from powerbot.database.access import get_state_change_btw, new_report,\
     get_report, new_tweet
 from powerbot.database.models import StateChange, Report, Tweet
 from itertools import izip
+import random
 
 def pairwise(iterable):
     a = iter(iterable)
@@ -13,10 +14,10 @@ def pairwise(iterable):
 def sleep_till_midnight():
     today = datetime.date.today()
     tomorrow = today + datetime.timedelta(days=1)
-    tomorrow_time = time.mktime(tomorrow.timetuple())
+    tomorrow_time = time.mktime(tomorrow.timetuple()) + random.randrange(0,600)
     logging.info('Next report generation scheduled at ' + time.ctime(tomorrow_time))
-    #time.sleep(int(tomorrow_time) - int(time.time()))
-    time.sleep(100)
+    #time.sleep(int(tomorrow_time) - int(time.time()) )
+    time.sleep(10)
 
 def generate_reports():
     today = datetime.date(2012,12,12) #datetime.datetime.today()
@@ -44,7 +45,7 @@ def generate_daily_reports():
     yesterday_start = int(time.mktime(yesterday.timetuple()))
     today_start = yesterday_start + 86400
     records = get_state_change_btw(yesterday_start, today_start)
-    if records == None:
+    if records == None or len(records) == 0:
         logging.info('No records available to generate daily report')
         return
      
@@ -69,14 +70,10 @@ def generate_daily_reports():
         logging.info("%s - %s = %ss" % (x, y, single_on_time))
     
     message = "Electricity ON TIME on %s is %s. i.e, %.2f%%" % (yesterday.strftime('%b %d, %Y'), datetime.timedelta(seconds=on_time),on_time/864.0)
-    
-     
-    tweet = Tweet(today_start, message, None, today_start + 43200)
-    new_tweet(tweet)
-    print message
+    logging.info(message)
+    new_tweet(Tweet(int(time.time()), message, None, today_start + 43200))
     new_report(Report(yesterday_start, on_time, ReportType.DAILY_REPORT))
     print get_report(yesterday_start, ReportType.DAILY_REPORT) 
-    
 
 def generate_weekly_reports():
     logging.info('Generating weekly reports')
@@ -96,6 +93,3 @@ class ReportType:
     MONTHLY_REPORT = 2
     QUARTERLY_REPORT = 3
     YEARLY_REPORT = 4
-
-
-generate_reports()

@@ -121,7 +121,7 @@ def get_report(date,report_type):
         cursor = connection.cursor()
         cursor.execute(select_report,(date,report_type))
         data = cursor.fetchone()
-        report = Report(data[0], data[1], data[2])
+        report = Report(data[0], data[2], data[1])
     except sqlite.Error, e:
         logging.error("Error %s:" % e.args[0])
     finally:
