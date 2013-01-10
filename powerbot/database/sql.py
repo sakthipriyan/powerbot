@@ -1,7 +1,8 @@
 '''
 This file contains SQL strings
 '''
-database = 'powerbot.db'
+from powerbot.core.config import database_file
+database = database_file
 
 ##Core table where status change is recorded##
 create_state_change = '''CREATE TABLE "state_change" (

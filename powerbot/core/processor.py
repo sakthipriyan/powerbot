@@ -11,6 +11,7 @@ from Queue import Queue
 from powerbot.core.tweet import get_wait_time, send_tweet, internet_on
 from powerbot.core.report import sleep_till_midnight, generate_reports
 from powerbot.database.access import init_database
+from powerbot.core.config import log_file
 
 old_status = True
 state_change_queue = Queue()
@@ -71,12 +72,12 @@ def process_reports():
         tweet_ready.set()
 
 def init_logging():
-    logging.basicConfig(filename='powerbot.log', 
-                        format='%(asctime)s [%(threadName)s] %(message)s', datefmt="%Y-%m-%d %H:%M:%S",
-                         level=logging.INFO)
-    logging.info('### Running POWER BOT service ###')
+    logging.basicConfig(level=logging.INFO, filename=log_file,
+                        format='%(asctime)s [%(threadName)s] %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
+    logging.info('-------------### Starting POWER BOT service ###-------------')
 
-def main():
+def service():
+    
     init_logging()
     init_database()
     init_sensor()
@@ -103,6 +104,3 @@ def main():
     processThread.start()
     tweetThread.start()
     reportThread.start()
-    
-if __name__ == "__main__":
-    main()

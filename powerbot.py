@@ -1,16 +1,15 @@
-
 import sys
 from powerbot.core.daemon import Daemon
 from powerbot.core import processor
-  
+from powerbot.core.config import pid, out_file, err_file
+
+
 class PowerbotDaemon(Daemon):
     def run(self):
-        processor.main()
-        #while True:
-        #    time.sleep(1)
-    
+        processor.service()
+
 if __name__ == "__main__":
-    daemon = PowerbotDaemon('/tmp/daemon-example.pid',stdout='out.log',stderr='err.log')
+    daemon = PowerbotDaemon(pid,stdout=out_file,stderr=err_file)
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
             daemon.start()

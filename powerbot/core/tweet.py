@@ -6,7 +6,9 @@ Created on 15-Dec-2012
 from twython import Twython
 import config
 import logging
-import urllib2
+import urllib2 
+import os
+from powerbot.core.config import tweet_file
 
 twitter = Twython(
     twitter_token = config.twitter_token,
@@ -26,12 +28,17 @@ def post_tweet_with_image(text, image):
     twitter.updateStatusWithMedia(image, status=text)
 
 def send_tweet(tweet):
+    
+    if(not os.path.isfile(tweet_file)):    
+        logging.info('Tweeting is not enabled. To enable, touch ' + tweet_file)
+        return
+    
     try:
-        if(tweet.picture):
+        logging.info('Sending...' + str(tweet))
+        if(tweet.picture):            
             post_tweet_with_image(tweet.message, tweet.picture)
         else:
             post_tweet(tweet.message)
-        logging.info('Sending ' + str(tweet))
         return True
     except Exception, e:
         logging.error('Failed to send ' + str(tweet) + str(e))
