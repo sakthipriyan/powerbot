@@ -1,11 +1,9 @@
-import datetime
-import time
-import logging
+import datetime, time, logging, random
+
 from powerbot.database.access import get_state_change_btw, new_report,\
     get_report, new_tweet, get_reports
 from powerbot.database.models import StateChange, Report, Tweet
 from itertools import izip
-import random
 
 today = None
 yesterday = None
@@ -21,8 +19,7 @@ def sleep_till_midnight():
     tomorrow = today + datetime.timedelta(days=1)
     tomorrow_time = time.mktime(tomorrow.timetuple()) + random.randrange(0,600)
     logging.info('Next report generation scheduled at ' + time.ctime(tomorrow_time))
-    #time.sleep(int(tomorrow_time) - int(time.time()) )
-    time.sleep(5)
+    time.sleep(tomorrow_time - time.time())
 
 def generate_reports():
     global today, today_start, yesterday, yesterday_start
@@ -50,7 +47,7 @@ def generate_reports():
 def generate_daily_reports():
     records = get_state_change_btw(yesterday_start, today_start)
     if records == None or len(records) == 0:
-        logging.info('No record available to generate daily report')
+        logging.info('No records available to generate daily report')
         return
     else:
         logging.info('Generating daily report')
@@ -97,7 +94,7 @@ def generate_report(report_type, report_str, process_report, get_start_date):
     avg_on_time = on_time/len(reports)
     
     last_report = get_report(date_start, report_type)
-    message = get_report_message(ReportType.WEEKLY_REPORT, avg_on_time, date, yesterday)    
+    message = get_report_message(report_type, avg_on_time, date, yesterday)    
     message += get_percentage_change(avg_on_time, last_report.on_time if last_report else None)
     
     new_tweet(Tweet(int(time.time()), message, None, today_start + 86400))
@@ -144,15 +141,15 @@ def get_last_week():
 
 def get_report_message(report_type,avg_on_time,from_date,to_date=None):
     if report_type is ReportType.DAILY_REPORT:
-        return "Daily Report:%s. ON TIME: %s. " % (from_date.strftime('%b %d, %Y'), datetime.timedelta(seconds=avg_on_time))
+        return "Daily Report:%s. OFF TIME: %s. " % (from_date.strftime('%b %d, %Y'), datetime.timedelta(seconds=86400-avg_on_time))
     elif report_type is ReportType.WEEKLY_REPORT:
-        return "Weekly Report:%s to %s. Average ON TIME: %s. " % (from_date.strftime('%b %d, %Y'), to_date.strftime('%b %d, %Y'), datetime.timedelta(seconds=avg_on_time))
+        return "Weekly Report:%s to %s. Average OFF TIME: %s. " % (from_date.strftime('%b %d, %Y'), to_date.strftime('%b %d, %Y'), datetime.timedelta(seconds=86400-avg_on_time))
     elif report_type is ReportType.MONTHLY_REPORT:
-        return "Monthly Report:%s to %s. Average ON TIME: %s. " % (from_date.strftime('%b %d, %Y'), to_date.strftime('%b %d, %Y'), datetime.timedelta(seconds=avg_on_time))
+        return "Monthly Report:%s to %s. Average OFF TIME: %s. " % (from_date.strftime('%b %d, %Y'), to_date.strftime('%b %d, %Y'), datetime.timedelta(seconds=86400-avg_on_time))
     elif report_type is ReportType.QUARTERLY_REPORT:
-        return "Quarterly Report:%s to %s. Average ON TIME: %s. " % (from_date.strftime('%b %d, %Y'), to_date.strftime('%b %d, %Y'), datetime.timedelta(seconds=avg_on_time))
+        return "Quarterly Report:%s to %s. Average OFF TIME: %s. " % (from_date.strftime('%b %d, %Y'), to_date.strftime('%b %d, %Y'), datetime.timedelta(seconds=86400-avg_on_time))
     else:
-        return "Yearly Report:%s to %s. Average ON TIME: %s. " % (from_date.strftime('%b %d, %Y'), to_date.strftime('%b %d, %Y'), datetime.timedelta(seconds=avg_on_time))
+        return "Yearly Report:%s to %s. Average OFF TIME: %s. " % (from_date.strftime('%b %d, %Y'), to_date.strftime('%b %d, %Y'), datetime.timedelta(seconds=86400-avg_on_time))
     
 def get_percentage_change(avg_on_time, last_avg_on_time=None):
     message = "Availability: %.2f%%. " % (avg_on_time/864.0)
@@ -160,7 +157,7 @@ def get_percentage_change(avg_on_time, last_avg_on_time=None):
         change = (avg_on_time-last_avg_on_time)/864.0
         message +=  "Change: %+.2f%%." % (change)
     return message
-    
+
 class ReportType:
     DAILY_REPORT = 0
     WEEKLY_REPORT = 1
