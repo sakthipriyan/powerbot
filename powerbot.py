@@ -1,25 +1,16 @@
-#!/usr/bin/python
-# /etc/init.d/powerbot
 
-'''
-Created on 15-Dec-2012
-
-@author: sakthipriyan
-'''
-
-#import sys
+import sys
+from powerbot.core.daemon import Daemon
 from powerbot.core import processor
-#from powerbot.core.daemon import Daemon
-
-if __name__ == '__main__':
-    processor.main()
-    
-''' 
-class MyDaemon(Daemon):
+  
+class PowerbotDaemon(Daemon):
     def run(self):
-        processor.main() 
+        processor.main()
+        #while True:
+        #    time.sleep(1)
+    
 if __name__ == "__main__":
-    daemon = MyDaemon('/tmp/powerbot.pid')
+    daemon = PowerbotDaemon('/tmp/daemon-example.pid',stdout='out.log',stderr='err.log')
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
             daemon.start()
@@ -34,5 +25,3 @@ if __name__ == "__main__":
     else:
         print "usage: %s start|stop|restart" % sys.argv[0]
         sys.exit(2)
-        
-'''

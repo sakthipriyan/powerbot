@@ -56,7 +56,7 @@ def process_tweets():
                     break
                 elif send_tweet(tweet):
                     access.update_posted_tweet(tweet)
-                time.sleep(60)
+                time.sleep(10)
         else:
             sleep_time = get_wait_time()
             logging.info('Apparently Internet connection is down now. Sleeping time : ' + str(sleep_time))
@@ -71,7 +71,7 @@ def process_reports():
         tweet_ready.set()
 
 def init_logging():
-    logging.basicConfig(#filename='powerbot.log', 
+    logging.basicConfig(filename='powerbot.log', 
                         format='%(asctime)s [%(threadName)s] %(message)s', datefmt="%Y-%m-%d %H:%M:%S",
                          level=logging.INFO)
     logging.info('### Running POWER BOT service ###')
