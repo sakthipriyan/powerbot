@@ -21,11 +21,12 @@ def sleep_till_midnight():
     tomorrow = today + datetime.timedelta(days=1)
     tomorrow_time = time.mktime(tomorrow.timetuple()) + random.randrange(0,600)
     logging.info('Next report generation scheduled at ' + time.ctime(tomorrow_time))
-    time.sleep(int(tomorrow_time) - int(time.time()) )
+    #time.sleep(int(tomorrow_time) - int(time.time()) )
+    time.sleep(5)
 
 def generate_reports():
     global today, today_start, yesterday, yesterday_start
-    today = datetime.date.today()
+    today = datetime.datetime(2014,1,1) #datetime.date.today()
     yesterday = today + datetime.timedelta(days=-1)
     yesterday_start = int(time.mktime(yesterday.timetuple()))
     today_start = yesterday_start + 86400
@@ -45,7 +46,6 @@ def generate_reports():
     
     if day == 1 and month == 1:
         generate_yearly_reports()
-    
 
 def generate_daily_reports():
     records = get_state_change_btw(yesterday_start, today_start)
@@ -80,7 +80,6 @@ def generate_daily_reports():
     new_tweet(Tweet(int(time.time()), message, None, today_start + 43200))
     new_report(Report(yesterday_start, on_time, ReportType.DAILY_REPORT))
 
-''' TODO - test and remove other individual methods.
 def generate_report(report_type, report_str, process_report, get_start_date):
     date = get_start_date()
     date_start = int(time.mktime(date.timetuple()))
@@ -102,100 +101,20 @@ def generate_report(report_type, report_str, process_report, get_start_date):
     message += get_percentage_change(avg_on_time, last_report.on_time if last_report else None)
     
     new_tweet(Tweet(int(time.time()), message, None, today_start + 86400))
-    new_report(Report(today_start, avg_on_time, report_type))
-''' 
-    
+    new_report(Report(today_start, avg_on_time, report_type))    
 
 def generate_weekly_reports():
-    last_week = today + datetime.timedelta(days=-7)
-    last_week_start = int(time.mktime(last_week.timetuple()))
-    reports = get_reports(ReportType.DAILY_REPORT, last_week_start, yesterday_start)
-    
-    if reports == None or len(reports) == 0:
-        logging.info('No records available to generate weekly report')
-        return    
-    else:
-        logging.info('Generating weekly report')
-
-    on_time = 0 
-    for report in reports:
-        on_time = on_time + report.on_time
-    avg_on_time = on_time/len(reports)
-    last_report = get_report(last_week_start, ReportType.WEEKLY_REPORT)
-    
-    message = get_report_message(ReportType.WEEKLY_REPORT, avg_on_time, last_week, yesterday)
-    message += get_percentage_change(avg_on_time, last_report.on_time if last_report else None)
-    new_tweet(Tweet(int(time.time()), message, None, today_start + 86400))
-    new_report(Report(today_start, avg_on_time, ReportType.WEEKLY_REPORT))
+    generate_report(ReportType.WEEKLY_REPORT, 'weekly', ReportType.DAILY_REPORT, get_last_week)
 
 def generate_monthly_reports():
-    last_month = get_last_month()
-    last_month_start =  int(time.mktime(last_month.timetuple()))
-    reports = get_reports(ReportType.DAILY_REPORT, last_month_start, yesterday_start)
+    generate_report(ReportType.MONTHLY_REPORT, 'monthly', ReportType.DAILY_REPORT, get_last_month)
     
-    if reports == None or len(reports) == 0:
-        logging.info('No records available to generate monthly report')
-        return
-    else:
-        logging.info('Generating monthly report')
-
-    on_time = 0 
-    for report in reports:
-        on_time = on_time + report.on_time
-    avg_on_time = on_time/len(reports)
-    last_report = get_report(last_month_start, ReportType.MONTHLY_REPORT)
-    
-    message = get_report_message(ReportType.MONTHLY_REPORT, avg_on_time, last_month, yesterday)
-    message += get_percentage_change(avg_on_time, last_report.on_time if last_report else None)
-    new_tweet(Tweet(int(time.time()), message, None, today_start + 259200))
-    new_report(Report(today_start, avg_on_time, ReportType.MONTHLY_REPORT))
-
 def generate_quarterly_reports():
-    
-    last_quarter = get_last_quarter()
-    last_quarter_start =  int(time.mktime(last_quarter.timetuple()))
-    reports = get_reports(ReportType.MONTHLY_REPORT, last_quarter_start, yesterday_start)
-    
-    if reports == None or len(reports) == 0:
-        logging.info('No records available to generate quarterly report')
-        return
-    else:
-        logging.info('Generating quarterly report')
-
-    on_time = 0 
-    for report in reports:
-        on_time = on_time + report.on_time
-    avg_on_time = on_time/len(reports)
-    last_report = get_report(last_quarter_start, ReportType.QUARTERLY_REPORT)
-    
-    message = get_report_message(ReportType.QUARTERLY_REPORT, avg_on_time, last_quarter, yesterday)
-    message += get_percentage_change(avg_on_time, last_report.on_time if last_report else None)
-    new_tweet(Tweet(int(time.time()), message, None, today_start + 604800))
-    new_report(Report(today_start, avg_on_time, ReportType.QUARTERLY_REPORT))
-
+    generate_report(ReportType.QUARTERLY_REPORT, 'quarterly', ReportType.DAILY_REPORT, get_last_quarter)
+        
 def generate_yearly_reports():
+    generate_report(ReportType.YEARLY_REPORT, 'yearly', ReportType.DAILY_REPORT, get_last_year)
     
-    last_year = datetime.date(today.year-1,today.month,today.day)
-    last_year_start =  int(time.mktime(last_year.timetuple()))
-    reports = get_reports(ReportType.QUARTERLY_REPORT, last_year_start, yesterday_start)
-    
-    if reports == None or len(reports) == 0:
-        logging.info('No records available to generate yearly report')
-        return
-    else:
-        logging.info('Generating yearly report')
-
-    on_time = 0 
-    for report in reports:
-        on_time = on_time + report.on_time
-    avg_on_time = on_time/len(reports)
-    last_report = get_report(last_year_start, ReportType.YEARLY_REPORT)
-    
-    message = get_report_message(ReportType.YEARLY_REPORT, avg_on_time, last_year, yesterday)
-    message += get_percentage_change(avg_on_time, last_report.on_time if last_report else None)
-    new_tweet(Tweet(int(time.time()), message, None, today_start + 2592000))
-    new_report(Report(today_start, avg_on_time, ReportType.YEARLY_REPORT))
-
 def get_last_year():
     return datetime.date(today.year-1,today.month,today.day)    
 
