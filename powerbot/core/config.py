@@ -13,7 +13,7 @@ err_file = '/var/log/powerbot/syserr.log'
 database_file = '/var/opt/powerbot/database.db'
 
 #Powerbot will send tweet if this file is available
-tweet_file = '/var/opt/powerbot/tweet'
+tweet_file = '/var/opt/powerbot/tweet.cfg'
 
 #Process id for self termination
 pid = '/var/run/powerbot.pid'
