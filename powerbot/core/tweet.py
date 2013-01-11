@@ -55,9 +55,9 @@ def get_wait_time():
 
 def internet_on():
     try:
-        urllib2.urlopen('http://74.125.113.99',timeout=5)
+        urllib2.urlopen('http://www.google.com',timeout=10)
         return True
-    except urllib2.URLError: 
+    except Exception: 
         pass    
     return False
 #tweet_with_image(auth, 'Testing image attachment now', '/home/sakthipriyan/Desktop/index.jpeg')
