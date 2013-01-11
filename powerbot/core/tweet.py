@@ -61,7 +61,7 @@ def get_wait_time():
 
 def internet_on():
     try:
-        urllib2.urlopen('http://www.google.com',timeout=15)
+        urllib2.urlopen('http://www.google.com',timeout=5)
         return True
     except Exception: 
         pass    
