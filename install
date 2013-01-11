@@ -1,1 +1,7 @@
 #This file will have installation scripts.
+
+git clone git://github.com/spriyan/powerbot.git
+mkdir /var/log/powerbot
+mkdir /var/opt/powerbot
+mkdir /opt/powerbot
+cp -r powerbot/p* /opt/powerbot/
