@@ -1,0 +1,23 @@
+#!/bin/sh
+# /etc/init.d/powerbot-daemon
+
+case "$1" in
+	start)
+		echo "Starting powerbot service..."
+		python /opt/powerbot/powerbot.py start
+		;;
+	stop)
+		echo "Stopping powerbot service..."
+		python /opt/powerbot/powerbot.py stop
+		;;
+	restart)
+		echo "Restarting powerbot service..."
+		python /opt/powerbot/powerbot.py restart
+		;;
+	*)
+		echo "Usage: /etc/init.d/powerbot-daemon (start|stop|restart)"
+		exit 1
+		;;
+esac
+
+exit 0

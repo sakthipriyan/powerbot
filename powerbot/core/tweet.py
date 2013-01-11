@@ -26,9 +26,8 @@ def init_tweetbot():
                           twitter_secret = config.get('TweetAuth','twitter_secret'),
                           oauth_token = config.get('TweetAuth','oauth_token'),
                           oauth_token_secret = config.get('TweetAuth','oauth_token_secret'))
-
     except NoSectionError, NoOptionError:
-        pass
+        logging.error('Twitter Initialisation failed')
 
 def post_tweet(text):
     global twitter
