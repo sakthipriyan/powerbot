@@ -8,7 +8,8 @@ from powerbot.core.sensor import get_status, init_sensor
 from powerbot.database.models import StateChange, Tweet
 from powerbot.database import access 
 from Queue import Queue
-from powerbot.core.tweet import get_wait_time, send_tweet, internet_on
+from powerbot.core.tweet import get_wait_time, send_tweet, internet_on,\
+    init_tweetbot
 from powerbot.core.report import sleep_till_midnight, generate_reports
 from powerbot.database.access import init_database
 from powerbot.core.config import log_file
@@ -81,6 +82,7 @@ def service():
     init_logging()
     init_database()
     init_sensor()
+    init_tweetbot()
     
     global old_status 
     lastStateChange = access.get_last_state_change()

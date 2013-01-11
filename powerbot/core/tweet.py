@@ -9,30 +9,36 @@ import logging
 import urllib2 
 import os
 from powerbot.core.config import tweet_file
+from ConfigParser import  RawConfigParser, NoSectionError, NoOptionError
 
-twitter = Twython(
-    twitter_token = config.twitter_token,
-    twitter_secret = config.twitter_secret,
-    oauth_token = config.oauth_token,
-    oauth_token_secret = config.oauth_token_secret
-)
-
+twitter = None
 wait_time_index = -1;
 
+def init_tweetbot():
+    if(not os.path.isfile(tweet_file)):    
+        logging.info('To enable Tweeting, add config file & restart.' + tweet_file)
+        return
+    try:
+        config = RawConfigParser()
+        config.read(tweet_file)
+        twitter = Twython(twitter_token = config.get('TweetAuth','twitter_token'),
+                          twitter_secret = config.get('TweetAuth','twitter_secret'),
+                          oauth_token = config.get('TweetAuth','oauth_token'),
+                          oauth_token_secret = config.get('TweetAuth','oauth_token_secret'))
+
+    except NoSectionError, NoOptionError:
+        pass
+
 def post_tweet(text):
-    global twitter
     twitter.updateStatus(status=text)
     
 def post_tweet_with_image(text, image):
-    global twitter
     twitter.updateStatusWithMedia(image, status=text)
 
 def send_tweet(tweet):
-    
-    if(not os.path.isfile(tweet_file)):    
-        logging.info('Tweeting is not enabled. To enable, touch ' + tweet_file)
+    if(not twitter):
+        logging.info('To enable Tweeting, + config file & restart.' + tweet_file)
         return
-    
     try:
         logging.info('Sending...' + str(tweet))
         if(tweet.picture):            
@@ -55,7 +61,7 @@ def get_wait_time():
 
 def internet_on():
     try:
-        urllib2.urlopen('http://www.google.com',timeout=10)
+        urllib2.urlopen('http://www.google.com',timeout=15)
         return True
     except Exception: 
         pass    
