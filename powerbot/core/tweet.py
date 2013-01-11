@@ -15,6 +15,7 @@ twitter = None
 wait_time_index = -1;
 
 def init_tweetbot():
+    global twitter
     if(not os.path.isfile(tweet_file)):    
         logging.info('To enable Tweeting, add config file & restart.' + tweet_file)
         return
@@ -30,12 +31,15 @@ def init_tweetbot():
         pass
 
 def post_tweet(text):
+    global twitter
     twitter.updateStatus(status=text)
     
 def post_tweet_with_image(text, image):
+    global twitter
     twitter.updateStatusWithMedia(image, status=text)
 
 def send_tweet(tweet):
+    global twitter
     if(not twitter):
         logging.info('To enable Tweeting, + config file & restart.' + tweet_file)
         return
