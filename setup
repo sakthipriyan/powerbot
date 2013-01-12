@@ -3,7 +3,6 @@
 case "$1" in
 	install)
 		echo "Installing powerbot service..."
-		git clone git://github.com/spriyan/powerbot.git
 		mkdir /var/log/powerbot
 		mkdir /var/opt/powerbot
 		mkdir /opt/powerbot
@@ -16,8 +15,9 @@ case "$1" in
 
 	update)
 		echo "Updating powerbot service..."
-		/etc/init.d/powerbot stop
 		git pull
+		/etc/init.d/powerbot stop
+		cd ../
 		cp -r powerbot/* /opt/powerbot/
 		/etc/init.d/powerbot start
 		;;
