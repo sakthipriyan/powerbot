@@ -23,7 +23,7 @@ def sleep_till_midnight():
 
 def generate_reports():
     global today, today_start, yesterday, yesterday_start
-    today = datetime.datetime(2014,1,1) #datetime.date.today()
+    today = datetime.date.today()
     yesterday = today + datetime.timedelta(days=-1)
     yesterday_start = int(time.mktime(yesterday.timetuple()))
     today_start = yesterday_start + 86400
