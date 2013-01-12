@@ -1,0 +1,31 @@
+#This script can be used to install/update powerbot.
+
+case "$1" in
+	install)
+		echo "Installing powerbot service..."
+		git clone git://github.com/spriyan/powerbot.git
+		mkdir /var/log/powerbot
+		mkdir /var/opt/powerbot
+		mkdir /opt/powerbot
+		cp -r powerbot/* /opt/powerbot/
+		ln /opt/powerbot/powerbot-daemon /etc/init.d/powerbot
+		chmod +x /etc/init.d/powerbot
+		update-rc.d powerbot defaults
+		echo "Create /var/opt/powerbot/tweet.cfg to setup tweetbot."
+		;;
+
+	update)
+		echo "Updating powerbot service..."
+		/etc/init.d/powerbot stop
+		git pull
+		cp -r powerbot/* /opt/powerbot/
+		/etc/init.d/powerbot start
+		;;
+		
+	*)
+		echo "Usage: setup (install|update)"
+		exit 1
+		;;
+esac
+
+exit 0
