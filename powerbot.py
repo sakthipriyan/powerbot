@@ -2,6 +2,7 @@ import sys
 from powerbot.core.daemon import Daemon
 from powerbot.core import processor
 from powerbot.core.config import pid, out_file, err_file
+import logging
 
 
 class PowerbotDaemon(Daemon):
@@ -14,6 +15,7 @@ if __name__ == "__main__":
         if 'start' == sys.argv[1]:
             daemon.start()
         elif 'stop' == sys.argv[1]:
+            logging.info('-------------### Stopping POWER BOT service ###-------------')
             daemon.stop()
         elif 'restart' == sys.argv[1]:
             daemon.restart()
