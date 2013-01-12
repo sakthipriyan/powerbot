@@ -16,9 +16,8 @@ case "$1" in
 	update)
 		echo "Updating powerbot service..."
 		git pull
-		/etc/init.d/powerbot stop
 		cp -r ./* /opt/powerbot/
-		/etc/init.d/powerbot start
+		/etc/init.d/powerbot restart
 		;;
 		
 	*)
