@@ -51,15 +51,15 @@ def process_change():
 def process_tweets():
     global tweet_ready
     while tweet_ready.wait():
+        tweet_ready.clear()
         if internet_on():
             while True:
                 tweet = access.next_tweet()
                 if tweet is None:
-                    tweet_ready.clear()
                     break
                 elif send_tweet(tweet):
                     access.update_posted_tweet(tweet)
-                    time.sleep(10)
+                    time.sleep(1)
         else:
             sleep_time = get_wait_time()
             logging.info('Apparently Internet connection is down now. Sleeping time : ' + str(sleep_time))
