@@ -87,14 +87,14 @@ def generate_report(report_type, report_str, process_report, get_start_date):
         return    
     else:
         logging.info('Generating ' + report_str + ' report')
-
+    from_date = datetime.datetime.fromtimestamp(reports[0].date)
     on_time = 0 
     for report in reports:
         on_time = on_time + report.on_time
     avg_on_time = on_time/len(reports)
     
     last_report = get_report(date_start, report_type)
-    message = get_report_message(report_type, avg_on_time, date, yesterday)    
+    message = get_report_message(report_type, avg_on_time, from_date, yesterday)    
     message += get_percentage_change(avg_on_time, last_report.on_time if last_report else None)
     
     new_tweet(Tweet(int(time.time()), message, None, today_start + 86400))
