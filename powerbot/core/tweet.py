@@ -22,10 +22,10 @@ def init_tweetbot():
     try:
         config = RawConfigParser()
         config.read(tweet_file)
-        twitter = Twython(twitter_token = config.get('TweetAuth','twitter_token'),
-                          twitter_secret = config.get('TweetAuth','twitter_secret'),
-                          oauth_token = config.get('TweetAuth','oauth_token'),
-                          oauth_token_secret = config.get('TweetAuth','oauth_token_secret'))
+        twitter = Twython(config.get('TweetAuth','twitter_token'),
+                          config.get('TweetAuth','twitter_secret'),
+                          config.get('TweetAuth','oauth_token'),
+                          config.get('TweetAuth','oauth_token_secret'))
     except NoSectionError, NoOptionError:
         logging.error('Twitter Initialisation failed')
 
