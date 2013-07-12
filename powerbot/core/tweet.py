@@ -31,11 +31,11 @@ def init_tweetbot():
 
 def post_tweet(text):
     global twitter
-    twitter.updateStatus(status=text)
+    twitter.update_status(status=text)
     
 def post_tweet_with_image(text, image):
     global twitter
-    twitter.updateStatusWithMedia(image, status=text)
+    twitter.update_status_with_media(media=image, status=text)
 
 def send_tweet(tweet):
     global twitter
